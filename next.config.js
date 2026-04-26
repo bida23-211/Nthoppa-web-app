@@ -3,8 +3,6 @@ const nextConfig = {
   images: {
     domains: ['axstdjscrdaspqeogole.supabase.co'],
   },
-  experimental: {
-    serverComponentsExternalPackages: ['@prisma/client', 'bcryptjs'],
-  },
+  serverExternalPackages: ['@prisma/client', 'bcryptjs'],
 }
 module.exports = nextConfig
