@@ -385,20 +385,6 @@ export default function LandingPage() {
               </motion.div>
             ))}
           </div>
-
-          <div className="bg-gradient-to-r from-[#E9521C]/10 to-transparent rounded-2xl p-8 border border-[#E9521C]/20">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div>
-                <h3 className="font-bold text-white text-xl mb-2">Partner Network</h3>
-                <p className="text-white/50 text-sm">Trusted by leading financial institutions in Botswana</p>
-              </div>
-              <div className="flex flex-wrap gap-6 items-center">
-                {['Liberty', 'Hollard', 'Stanbic', 'Old Mutual'].map(partner => (
-                  <span key={partner} className="text-white/40 font-semibold text-sm">{partner}</span>
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
