@@ -32,7 +32,7 @@ const roleConfig = {
     icon: User, 
     dashboard: "/dashboard/main", 
     demoEmail: "agent@nthoppa.com", 
-    demoPassword: "password123" 
+    demoPassword: "agent123"  // FIXED: was "password123", now "agent123"
   },
   client: { 
     label: "Client", 

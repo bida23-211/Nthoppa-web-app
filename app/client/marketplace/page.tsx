@@ -10,6 +10,7 @@ import {
   Search, X, Info, ChevronDown, ChevronUp, ChevronLeft
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 const categoryTabs = [
   { key: 'all', label: 'All Products', icon: Shield },
@@ -31,6 +32,14 @@ const subtypeColorMap: Record<string, string> = {
   personal_all_risks: 'bg-orange-900',
   group_life: 'bg-green-800',
 };
+
+const stanbicProducts = [
+  { name: "Stanbic Personal Loan", description: "Quick personal loans with competitive rates", icon: "💰" },
+  { name: "Stanbic Business Banking", description: "Business accounts and working capital solutions", icon: "🏢" },
+  { name: "Stanbic FlexiSave", description: "Flexible savings account with tiered interest", icon: "💳" },
+  { name: "Stanbic InsurePlus", description: "Bundled insurance and banking product", icon: "🛡️" },
+  { name: "Stanbic PayOnline", description: "Digital payments and merchant acquiring", icon: "💻" },
+];
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -177,6 +186,13 @@ export default function ClientMarketplacePage() {
     });
   };
 
+  const handleStanbicApply = (productName: string) => {
+    toast({
+      title: "✅ Stanbic Application Started",
+      description: `Your interest in ${productName} has been noted. A Stanbic representative will contact you within 48 hours.`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Back Navigation */}
@@ -217,6 +233,44 @@ export default function ClientMarketplacePage() {
           Rates shown are indicative and based on the Westlife Insurance Botswana quotation dated 29 January 2026.
           All values inclusive of 10% Broker commission and VAT. Quotes valid 30 days and subject to final validation.
         </p>
+      </div>
+
+      {/* Stanbic Services Section */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-800">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-12 h-12 bg-white rounded-xl p-2 shadow-sm">
+            <Image src="/partners/stanbic.jpeg" alt="Stanbic Bank" width={40} height={20} className="object-contain w-full h-full" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Stanbic Services</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Exclusive banking and financial products from Stanbic Bank</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {stanbicProducts.map((product, idx) => (
+            <Card key={idx} className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <span className="text-2xl">{product.icon}</span>
+                    <h3 className="font-semibold text-gray-900 dark:text-white mt-2">{product.name}</h3>
+                  </div>
+                  <div className="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-lg p-1.5">
+                    <Image src="/partners/stanbic.jpeg" alt="Stanbic" width={30} height={15} className="object-contain" />
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{product.description}</p>
+                <Button 
+                  variant="outline" 
+                  className="w-full border-[#E9521C] text-[#E9521C] hover:bg-[#E9521C] hover:text-white"
+                  onClick={() => handleStanbicApply(product.name)}
+                >
+                  Apply / Learn More →
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
 
       {/* Search */}

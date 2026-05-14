@@ -65,9 +65,9 @@ export default function HRDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Back Navigation */}
+      {/* Back Navigation - Goes to Landing Page */}
       <button
-        onClick={() => router.back()}
+        onClick={() => router.push("/")}
         className="inline-flex items-center gap-2 text-gray-500 hover:text-[#E9521C] font-medium text-sm mb-6 group transition-colors"
       >
         <div className="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-[#E9521C]/10 flex items-center justify-center transition-colors">

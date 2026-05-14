@@ -2,233 +2,499 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import {
+  TrendingUp,
+  Users,
+  DollarSign,
+  ShoppingBag,
+  Calendar,
+  ArrowUp,
+  ArrowDown,
+  Download,
+  Filter,
+  ChevronLeft,
+  Award,
+  Building2,
+  CreditCard,
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Eye,
+  MessageSquare,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { motion } from "framer-motion";
-import {
-  QrCode, TrendingUp, DollarSign, Users, ShoppingBag,
-  ArrowUp, ArrowDown, CreditCard, Smartphone, Wallet,
-  ChevronRight, Download, Calendar, Activity, Eye, ChevronLeft
-} from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
+import {
+  LineChart,
+  Line,
+  Area,
+  AreaChart,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
-const transactions = [
-  { id: 1, customer: "Thabo M.", amount: 450, method: "wallet", date: "Today, 14:23", status: "Completed", initials: "TM" },
-  { id: 2, customer: "Josephine K.", amount: 1280, method: "mobile", date: "Today, 11:45", status: "Completed", initials: "JK" },
-  { id: 3, customer: "Michael L.", amount: 350, method: "cash", date: "Yesterday, 16:12", status: "Completed", initials: "ML" },
-  { id: 4, customer: "Sarah P.", amount: 890, method: "wallet", date: "Yesterday, 09:34", status: "Pending", initials: "SP" },
+const weeklySales = [
+  { day: "Mon", sales: 12500, orders: 45 },
+  { day: "Tue", sales: 14800, orders: 52 },
+  { day: "Wed", sales: 13200, orders: 48 },
+  { day: "Thu", sales: 16400, orders: 61 },
+  { day: "Fri", sales: 18900, orders: 73 },
+  { day: "Sat", sales: 15600, orders: 58 },
+  { day: "Sun", sales: 9800, orders: 34 },
 ];
 
-const getMethodIcon = (method: string) => {
-  if (method === "wallet") return <Wallet className="h-3.5 w-3.5" />;
-  if (method === "mobile") return <Smartphone className="h-3.5 w-3.5" />;
-  return <CreditCard className="h-3.5 w-3.5" />;
-};
+const paymentMethods = [
+  { name: "QR Code", value: 45, color: "#E9521C" },
+  { name: "Cash", value: 35, color: "#F5A623" },
+  { name: "Bank Transfer", value: 15, color: "#4A90E2" },
+  { name: "Mobile Money", value: 5, color: "#7ED321" },
+];
 
-const getMethodLabel = (method: string) => {
-  if (method === "wallet") return "Digital Wallet";
-  if (method === "mobile") return "Mobile Money";
-  return "Cash";
-};
+const recentTransactions = [
+  { id: "TXN001", customer: "Thabo M.", amount: 345, method: "QR Code", status: "completed", time: "10:30 AM" },
+  { id: "TXN002", customer: "Lerato K.", amount: 890, method: "QR Code", status: "completed", time: "09:15 AM" },
+  { id: "TXN003", customer: "Mpho S.", amount: 2340, method: "Bank Transfer", status: "pending", time: "08:45 AM" },
+  { id: "TXN004", customer: "Kagiso M.", amount: 450, method: "QR Code", status: "completed", time: "Yesterday" },
+  { id: "TXN005", customer: "Boitumelo N.", amount: 1200, method: "Cash", status: "completed", time: "Yesterday" },
+];
+
+const stanbicProducts = [
+  "Stanbic Personal Loan",
+  "Stanbic Business Banking",
+  "Stanbic FlexiSave",
+  "Stanbic InsurePlus",
+  "Stanbic PayOnline",
+];
 
 export default function MerchantDashboard() {
   const router = useRouter();
-  const [showQr, setShowQr] = useState(false);
+  const [merchantName, setMerchantName] = useState("Kgabo Trading");
+  const [merchantCategory, setMerchantCategory] = useState("Retail");
+  const [merchantLocation, setMerchantLocation] = useState("Gaborone");
+  
+  // Referral Modal State
+  const [referModalOpen, setReferModalOpen] = useState(false);
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState("");
+  const [referralNotes, setReferralNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const { toast } = useToast();
-  const [todayRevenue, setTodayRevenue] = useState(2480);
-  const [monthlyRevenue, setMonthlyRevenue] = useState(48290);
-  const [transactionCount, setTransactionCount] = useState(342);
 
-  useEffect(() => {
-    fetch('/api/reports')
-      .then(r => r.json())
-      .then(data => {
-        if (data?.reports?.length) {
-          const estimatedCount = data.reports.length * 12;
-          setTransactionCount(estimatedCount);
-          const estimatedRevenue = estimatedCount * 230;
-          setMonthlyRevenue(estimatedRevenue);
-          const estimatedToday = Math.round(estimatedRevenue * 0.2 / 30);
-          setTodayRevenue(estimatedToday > 0 ? estimatedToday : todayRevenue);
-        }
-      })
-      .catch(() => {});
-  }, []);
+  const stats = [
+    { title: "Total Revenue", value: "BWP 98,450", change: "+12.5%", trend: "up", icon: DollarSign },
+    { title: "Total Orders", value: "342", change: "+8.2%", trend: "up", icon: ShoppingBag },
+    { title: "Active Customers", value: "1,245", change: "+5.4%", trend: "up", icon: Users },
+    { title: "Avg. Order Value", value: "BWP 288", change: "+3.1%", trend: "up", icon: TrendingUp },
+  ];
 
-  const handleGenerateQR = () => {
-    setShowQr(true);
-    toast({ title: "QR Code Ready", description: "Share this code with customers to receive payments" });
+  const handleSubmitReferral = async () => {
+    if (!customerName || !selectedProduct) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter customer name and select a product",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setTimeout(() => {
+      toast({
+        title: "✅ Referral Submitted Successfully!",
+        description: `${customerName} has been referred for ${selectedProduct}. You'll earn rewards upon successful onboarding.`,
+      });
+      setReferModalOpen(false);
+      setCustomerName("");
+      setCustomerPhone("");
+      setSelectedProduct("");
+      setReferralNotes("");
+      setIsSubmitting(false);
+    }, 1000);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Back Navigation */}
-      <button
-        onClick={() => router.back()}
-        className="inline-flex items-center gap-2 text-gray-500 hover:text-[#E9521C] font-medium text-sm mb-6 group transition-colors"
-      >
-        <div className="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-[#E9521C]/10 flex items-center justify-center transition-colors">
-          <ChevronLeft className="w-4 h-4" />
-        </div>
-        Back
-      </button>
-
-      {/* Page Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-black text-gray-900">Merchant Dashboard</h1>
-        <p className="text-gray-400 text-sm mt-1">Kgabo General Store - Gaborone</p>
-      </div>
-
-      {/* Revenue Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {[
-          { label: "Today's Sales", value: `BWP ${todayRevenue.toLocaleString()}`, trend: '+12%', icon: '📈', color: 'border-l-[#E9521C]', trendColor: 'text-green-600', bars: [40, 65, 45, 80, 55, 70, 90] },
-          { label: 'This Week', value: 'BWP 15,234', trend: '+8%', icon: '💰', color: 'border-l-blue-400', trendColor: 'text-green-600', bars: [30, 50, 70, 45, 80, 60, 75] },
-          { label: 'This Month', value: `BWP ${monthlyRevenue.toLocaleString()}`, trend: '+23%', icon: '📊', color: 'border-l-green-400', trendColor: 'text-green-600', bars: [50, 60, 45, 75, 80, 65, 90] },
-          { label: 'Customers', value: transactionCount.toString(), trend: '+45', icon: '👥', color: 'border-l-purple-400', trendColor: 'text-green-600', bars: [20, 40, 30, 60, 45, 70, 55] },
-        ].map((card, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-            className={`bg-white rounded-2xl p-5 shadow-sm border border-gray-100 border-l-4 ${card.color} hover:shadow-md transition-shadow`}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-2xl">{card.icon}</span>
-              <span className={`text-xs font-bold ${card.trendColor} bg-green-50 px-2 py-0.5 rounded-full`}>
-                {card.trend}
-              </span>
-            </div>
-            <div className="font-black text-gray-900 text-xl mb-1">{card.value}</div>
-            <div className="text-gray-400 text-xs mb-4">{card.label}</div>
-            <div className="flex items-end gap-0.5 h-8 mt-2 border-t border-gray-50 pt-2">
-              {card.bars.map((h, j) => (
-                <div
-                  key={j}
-                  className="flex-1 rounded-sm bg-[#E9521C]/20 hover:bg-[#E9521C]/40 transition-colors"
-                  style={{ height: `${h}%` }}
-                />
-              ))}
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-4">
-        <Card className="border-gray-200 bg-gradient-to-r from-orange-500 to-orange-600 text-white cursor-pointer hover:shadow-lg transition" onClick={handleGenerateQR}>
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-white/80 text-sm">Generate QR Code</p>
-              <p className="font-bold text-lg">Accept Payments</p>
-            </div>
-            <QrCode className="h-10 w-10 text-white/80" />
-          </CardContent>
-        </Card>
-        <Card className="border-gray-200 cursor-pointer hover:shadow-lg transition" onClick={() => window.location.href = "/merchant/analytics"}>
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-gray-500 text-sm">View Analytics</p>
-              <p className="font-bold text-black text-lg">Detailed Reports</p>
-            </div>
-            <Activity className="h-10 w-10 text-gray-300" />
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* QR Code Modal */}
-      {showQr && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-black">Your Payment QR Code</h3>
-              <button onClick={() => setShowQr(false)} className="text-gray-500 hover:text-black">✕</button>
-            </div>
-            <div className="flex justify-center mb-4">
-              <div className="w-48 h-48 bg-black rounded-2xl flex items-center justify-center">
-                <QrCode className="h-32 w-32 text-white" />
-              </div>
-            </div>
-            <p className="text-center text-sm text-gray-600 mb-4">Scan with Nthoppa app to pay</p>
-            <div className="text-center text-xs text-gray-400 mb-4">
-              <p>Kgabo General Store</p>
-              <p>Merchant ID: KGS-001</p>
-            </div>
-            <Button 
-              className="w-full bg-[#E9521C] text-white hover:bg-black"
-              onClick={() => {
-                setShowQr(false);
-                toast({ title: "QR Code Shared", description: "Share this QR code with customers" });
-              }}
-            >
-              Share QR Code
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Recent Transactions - Fixed View All button */}
-      <Card className="border-gray-200">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="text-black">Recent Transactions</CardTitle>
-            <CardDescription>Latest payments received</CardDescription>
-          </div>
-          <Link href="/merchant/transactions" className="text-[#E9521C] text-sm font-medium hover:underline">
-            View All →
-          </Link>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="divide-y divide-gray-100">
-            {transactions.map((tx, idx) => (
-              <motion.div
-                key={tx.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className="flex items-center justify-between p-4 hover:bg-orange-50/30 transition-colors"
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 gap-4">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => router.push("/")}
+                className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-gradient-to-br from-[#E9521C] to-[#c44216] text-white text-xs">
-                      {tx.initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium text-black text-sm">{tx.customer}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="flex items-center gap-1 text-xs text-gray-400">
-                        {getMethodIcon(tx.method)}
-                        {getMethodLabel(tx.method)}
-                      </span>
-                      <span className="text-xs text-gray-300">•</span>
-                      <span className="text-xs text-gray-400">{tx.date}</span>
-                    </div>
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">{merchantName}</h1>
+                <div className="flex items-center gap-3 mt-1">
+                  <div className="flex items-center gap-1 text-sm text-gray-500">
+                    <Building2 className="h-4 w-4" />
+                    <span>{merchantCategory}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-gray-500">
+                    <MapPin className="h-4 w-4" />
+                    <span>{merchantLocation}</span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-bold text-black text-sm">BWP {tx.amount}</p>
-                  <Badge className={`text-xs ${tx.status === "Completed" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"} border-0 mt-1`}>
-                    {tx.status}
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" className="gap-2">
+                <Download className="h-4 w-4" />
+                Export Report
+              </Button>
+              <Button className="bg-[#E9521C] hover:bg-[#c44216] gap-2">
+                <Filter className="h-4 w-4" />
+                Filter
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat) => (
+            <Card key={stat.title} className="hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-2 bg-orange-50 rounded-lg">
+                    <stat.icon className="h-5 w-5 text-[#E9521C]" />
+                  </div>
+                  <Badge className={stat.trend === "up" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}>
+                    {stat.change}
                   </Badge>
                 </div>
-              </motion.div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-sm text-gray-500 mt-1">{stat.title}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
-      {/* Floating FAB for QR */}
-      <button
-        onClick={handleGenerateQR}
-        className="fixed bottom-6 right-6 z-40 p-4 bg-[#E9521C] text-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110"
-      >
-        <QrCode className="h-6 w-6" />
-      </button>
+        {/* Stanbic Referral Widget */}
+        <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+          <CardContent className="pt-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-white rounded-xl p-2 shadow-md flex-shrink-0">
+                  <Image src="/partners/stanbic.jpeg" alt="Stanbic Bank" width={60} height={30} className="object-contain w-full h-full" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-xl font-bold text-gray-900">Refer Customers to Stanbic</h3>
+                    <Badge className="bg-green-100 text-green-700">Earn up to 5% commission</Badge>
+                    <Badge variant="outline" className="border-blue-300 text-blue-600">Quick approval</Badge>
+                  </div>
+                  <p className="text-gray-600 mt-1">
+                    Help your customers access Stanbic financial services and earn referral rewards
+                  </p>
+                </div>
+              </div>
+              <Dialog open={referModalOpen} onOpenChange={setReferModalOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-[#E9521C] hover:bg-[#c44216] text-white px-6 py-2">
+                    Refer Customer Now →
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <Image src="/partners/stanbic.jpeg" alt="Stanbic" width={60} height={30} className="object-contain" />
+                      <div>
+                        <DialogTitle className="text-xl">Refer Customer to Stanbic</DialogTitle>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          Earn referral rewards when your customer successfully onboards
+                        </p>
+                      </div>
+                    </div>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Customer Name *</label>
+                      <input
+                        type="text"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#E9521C] focus:ring-1 focus:ring-[#E9521C]"
+                        placeholder="Enter customer's full name"
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Customer Phone (Optional)</label>
+                      <input
+                        type="tel"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#E9521C] focus:ring-1 focus:ring-[#E9521C]"
+                        placeholder="e.g. +267 71 234 567"
+                        value={customerPhone}
+                        onChange={(e) => setCustomerPhone(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Product Interest *</label>
+                      <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a Stanbic product" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {stanbicProducts.map((product) => (
+                            <SelectItem key={product} value={product}>
+                              {product}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Additional Notes</label>
+                      <Textarea
+                        placeholder="Any specific needs or context about this customer?"
+                        value={referralNotes}
+                        onChange={(e) => setReferralNotes(e.target.value)}
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button variant="outline" onClick={() => setReferModalOpen(false)} className="flex-1">
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSubmitReferral} disabled={isSubmitting} className="flex-1 bg-[#E9521C] hover:bg-[#c44216]">
+                      {isSubmitting ? "Submitting..." : "Submit Referral"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Chart Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Weekly Sales Overview</CardTitle>
+              <CardDescription>Revenue trends over the past week</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={weeklySales}>
+                    <defs>
+                      <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#E9521C" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#E9521C" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis dataKey="day" />
+                    <YAxis />
+                    <Tooltip
+                      formatter={(value) => [`BWP ${value.toLocaleString()}`, "Revenue"]}
+                      contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="sales"
+                      stroke="#E9521C"
+                      fill="url(#salesGradient)"
+                      strokeWidth={2}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Payment Methods</CardTitle>
+              <CardDescription>Breakdown by transaction volume</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={paymentMethods}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      labelLine={false}
+                    >
+                      {paymentMethods.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => [`${value}%`, "Percentage"]} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Transactions */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Recent Transactions</CardTitle>
+                <CardDescription>Latest customer payments and orders</CardDescription>
+              </div>
+              <Button variant="ghost" className="text-[#E9521C]">
+                View All →
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Transaction ID</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Customer</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Amount</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Method</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Status</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Time</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentTransactions.map((tx) => (
+                    <tr key={tx.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                      <td className="py-3 px-4 text-sm font-medium text-gray-900">{tx.id}</td>
+                      <td className="py-3 px-4 text-sm text-gray-600">{tx.customer}</td>
+                      <td className="py-3 px-4 text-sm font-semibold text-gray-900">BWP {tx.amount.toLocaleString()}</td>
+                      <td className="py-3 px-4">
+                        <Badge variant="outline" className="bg-gray-100">
+                          {tx.method}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-4">
+                        {tx.status === "completed" ? (
+                          <Badge className="bg-green-100 text-green-700 border-0">
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Completed
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-yellow-100 text-yellow-700 border-0">
+                            <Clock className="h-3 w-3 mr-1" />
+                            Pending
+                          </Badge>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-500">{tx.time}</td>
+                      <td className="py-3 px-4">
+                        <button className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+                          <Eye className="h-4 w-4 text-gray-400" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* QR Code Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5 text-[#E9521C]" />
+                QR Code Performance
+              </CardTitle>
+              <CardDescription>Adoption and usage metrics</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-gray-600">QR Adoption Rate</span>
+                  <span className="font-semibold text-gray-900">68%</span>
+                </div>
+                <Progress value={68} className="h-2" />
+              </div>
+              <div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-gray-600">Monthly QR Transactions</span>
+                  <span className="font-semibold text-gray-900">234</span>
+                </div>
+                <Progress value={234 / 5} className="h-2" />
+              </div>
+              <div className="pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-gray-900">BWP 45,230</p>
+                    <p className="text-xs text-gray-500">QR Revenue (MTD)</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-green-600">+18.5%</p>
+                    <p className="text-xs text-gray-500">vs last month</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="h-5 w-5 text-[#E9521C]" />
+                Merchant Rewards
+              </CardTitle>
+              <CardDescription>Your earned rewards and bonuses</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl p-4">
+                  <p className="text-sm text-gray-600 mb-1">Total Rewards Earned</p>
+                  <p className="text-3xl font-bold text-[#E9521C]">BWP 4,280</p>
+                  <p className="text-xs text-gray-500 mt-1">From customer referrals and transaction volume</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <p className="text-xl font-bold text-gray-900">12</p>
+                    <p className="text-xs text-gray-500">Successful Referrals</p>
+                  </div>
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <p className="text-xl font-bold text-gray-900">BWP 1,240</p>
+                    <p className="text-xs text-gray-500">Referral Bonuses</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

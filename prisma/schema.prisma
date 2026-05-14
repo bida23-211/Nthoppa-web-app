@@ -1,13 +1,10 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -49,7 +46,7 @@ model User {
   educationLevel  String?
   industry        String?
   monthlyIncome   String?
-  interests       String?         @db.Text  // ⬅️ JSON string array -> @db.Text
+  interests       String?         // JSON string array
   territory       String?
   registrationDate DateTime        @default(now())
   
@@ -126,7 +123,7 @@ model Report {
   id          String   @id @default(cuid())
   agentId     String
   type        String   // users, communications, agents, performance
-  data        String   @db.Text  // ⬅️ JSON string -> @db.Text
+  data        String   // JSON string
   generatedAt DateTime @default(now())
   
   agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
@@ -154,7 +151,7 @@ model GamificationEvent {
   agentId     String
   eventType   String   // user_registered, completion_milestone, streak_bonus
   coinsEarned Int
-  metadata    String?  @db.Text  // ⬅️ JSON string -> @db.Text
+  metadata    String?  // JSON string
   createdAt   DateTime @default(now())
   
   agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
@@ -171,7 +168,7 @@ model FinancialProfile {
   savingsGoal         Float?
   riskTolerance       String?  // low, medium, high
   literacyScore       Int      @default(0)
-  products            String?  @db.Text  // ⬅️ JSON string array -> @db.Text
+  products            String?  // JSON string array
   updatedAt           DateTime @updatedAt
   
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -235,7 +232,7 @@ model Course {
   id           String   @id @default(cuid())
   title        String   @unique
   description  String
-  content      String   @db.Text  // ⬅️ JSON string with lessons array -> @db.Text
+  content      String   // JSON string with lessons array
   coinsReward  Int      @default(50)
   requiredScore Int     @default(0)
   order        Int      @default(0)

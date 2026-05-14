@@ -250,8 +250,9 @@ export function DashboardLayout({ children, type }: DashboardLayoutProps) {
         </div>
       </motion.aside>
 
-      <div className={`${collapsed ? 'lg:pl-16' : 'lg:pl-64'} transition-all duration-300`}>
-        <header className={`fixed right-0 ${collapsed ? 'lg:left-16' : 'lg:left-64'} left-0 top-0 z-30 bg-white/90 backdrop-blur-md border-b border-gray-200/80 transition-all duration-300`}>
+      {/* Main Content - REMOVED LEFT PADDING */}
+      <div className="lg:pl-0 transition-all duration-300">
+        <header className="fixed right-0 left-0 top-0 z-30 bg-white/90 backdrop-blur-md border-b border-gray-200/80 transition-all duration-300">
           <div className="flex h-16 items-center justify-between px-6">
             <div className="flex items-center gap-4">
               <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-gray-600 hover:text-[#E9521C]">

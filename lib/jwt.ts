@@ -1,6 +1,18 @@
-import jwt, { Secret } from 'jsonwebtoken';
+// This file is for server-side only (not middleware)
+import jwt, { Secret, JwtPayload } from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET as Secret;
+
+export interface TokenPayload {
+  id: string;
+  email: string;
+  role: string;
+  name: string;
+  territory?: string;
+  refreshVersion?: number;
+  iat?: number;
+  exp?: number;
+}
 
 export function validateJwtSecret(): void {
   if (!JWT_SECRET) {
@@ -21,7 +33,29 @@ export function signToken(payload: object, expiresIn: string | number = '7d'): s
   return jwt.sign(payload, JWT_SECRET, { expiresIn } as jwt.SignOptions);
 }
 
-export function verifyToken<T>(token: string): T {
-  validateJwtSecret();
-  return jwt.verify(token, JWT_SECRET) as T;
+// For server-side API routes - with generic support
+export function verifyToken<T = TokenPayload>(token: string): T | null {
+  try {
+    validateJwtSecret();
+    const decoded = jwt.verify(token, JWT_SECRET) as T;
+    return decoded;
+  } catch (error) {
+    console.error('Token verification failed:', error);
+    return null;
+  }
+}
+
+// For middleware - manual JWT decode without verification (Edge compatible)
+export function decodeToken(token: string): TokenPayload | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      return null;
+    }
+    const payload = Buffer.from(parts[1], 'base64').toString();
+    return JSON.parse(payload) as TokenPayload;
+  } catch (error) {
+    console.error('Token decode failed:', error);
+    return null;
+  }
 }

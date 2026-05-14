@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Shield, Users, CheckCircle2, ChevronDown, ChevronUp, Send, Info, ChevronLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 const subtypeColorMap: Record<string, string> = {
   motor_local: 'bg-blue-900',
@@ -18,6 +19,14 @@ const subtypeColorMap: Record<string, string> = {
   personal_all_risks: 'bg-orange-900',
   group_life: 'bg-green-800',
 };
+
+const stanbicProducts = [
+  { name: "Stanbic Personal Loan", description: "Quick personal loans with competitive rates" },
+  { name: "Stanbic Business Banking", description: "Business accounts and working capital solutions" },
+  { name: "Stanbic FlexiSave", description: "Flexible savings account with tiered interest" },
+  { name: "Stanbic InsurePlus", description: "Bundled insurance and banking product" },
+  { name: "Stanbic PayOnline", description: "Digital payments and merchant acquiring" },
+];
 
 export default function NthoppaSureAgentPage() {
   const router = useRouter();
@@ -59,6 +68,13 @@ export default function NthoppaSureAgentPage() {
     });
   };
 
+  const handleStanbicInterest = (productName: string) => {
+    toast({
+      title: "✅ Stanbic Interest Recorded",
+      description: `Your interest in ${productName} has been noted. A Stanbic representative will contact you within 48 hours.`,
+    });
+  };
+
   return (
     <DashboardLayout type="agent">
       <div className="space-y-6">
@@ -85,6 +101,42 @@ export default function NthoppaSureAgentPage() {
             <p className="text-white/70 max-w-lg">
               Select an insurance product and submit a referral for your client. Westlife will contact them directly within 24 hours.
             </p>
+          </div>
+        </div>
+
+        {/* Stanbic Services Section */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-800">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 bg-white rounded-xl p-2 shadow-sm">
+              <Image src="/partners/stanbic.jpeg" alt="Stanbic Bank" width={40} height={20} className="object-contain w-full h-full" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Stanbic Financial Services</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Exclusive banking products available through Nthoppa</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {stanbicProducts.map((product, idx) => (
+              <Card key={idx} className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{product.name}</h3>
+                    <div className="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+                      <Image src="/partners/stanbic.jpeg" alt="Stanbic" width={25} height={12} className="object-contain" />
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{product.description}</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full border-[#E9521C] text-[#E9521C] hover:bg-[#E9521C] hover:text-white text-xs"
+                    onClick={() => handleStanbicInterest(product.name)}
+                  >
+                    Learn More →
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
 

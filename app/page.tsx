@@ -30,6 +30,7 @@ import {
   PiggyBank,
   CreditCard,
 } from "lucide-react";
+import Image from "next/image";
 
 const navLinks = [
   { label: "Offerings", href: "#offerings" },
@@ -663,16 +664,17 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Partners Section */}
+      {/* Partners Section - WITH STANBIC LOGO (Blurb Removed) */}
       <section id="partners" className="bg-[#0a0a0a] py-24">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <div className="font-body text-white/40 text-sm uppercase tracking-widest mb-10">Trusted Partners</div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 max-w-5xl mx-auto">
             {[
               { name: "CreditYame", logo: "/partners/credityame.jpeg", category: "Credit Scoring" },
               { name: "iPachi Capital", logo: "/partners/ipachi.jpeg", category: "SME Finance" },
               { name: "Seriti Insights", logo: "/partners/seriti.jpeg", category: "Data & Analytics" },
               { name: "Seipone.ai", logo: "/partners/seipone.jpeg", category: "AI Solutions" },
+              { name: "Stanbic Bank", logo: "/partners/stanbic.jpeg", category: "Strategic Banking Partner" },
             ].map(partner => (
               <div key={partner.name} className="bg-white/5 rounded-2xl p-5 flex flex-col items-center gap-3 hover:bg-white/10 transition-all">
                 <div className="h-12 w-full flex items-center justify-center">

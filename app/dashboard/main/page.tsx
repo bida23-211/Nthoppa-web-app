@@ -46,6 +46,10 @@ import { api } from "@/lib/api";
 import type { User } from "@/lib/api";
 import { getAgentSession } from "@/lib/storage";
 import { CardSkeleton, TableSkeleton } from '@/components/LoadingSkeleton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import Image from "next/image";
 
 interface StatCardProps {
   title: string;
@@ -121,6 +125,23 @@ export default function AgentHomePage() {
   const [completionRate, setCompletionRate] = useState(0);
   const [recentUsers, setRecentUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Stanbic Recommendation Modal State
+  const [recommendModalOpen, setRecommendModalOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState("");
+  const [selectedClientName, setSelectedClientName] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState("");
+  const [recommendationNotes, setRecommendationNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const stanbicProducts = [
+    "Stanbic Personal Loan",
+    "Stanbic Business Banking", 
+    "Stanbic FlexiSave",
+    "Stanbic InsurePlus",
+    "Stanbic PayOnline"
+  ];
+  
   const [behaviourData, setBehaviourData] = useState({
     avgSavingsConsistency: 0,
     avgFinancialDiscipline: 0,
@@ -247,6 +268,31 @@ export default function AgentHomePage() {
     return <Badge className="bg-gray-200 text-gray-600 border-none">Inactive</Badge>;
   };
 
+  const handleSubmitRecommendation = async () => {
+    if (!selectedClient || !selectedProduct) {
+      toast({
+        title: "Missing Information",
+        description: "Please select a client and product",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setTimeout(() => {
+      toast({
+        title: "✅ Recommendation Submitted",
+        description: `${selectedClientName} has been recommended for ${selectedProduct} to Stanbic Bank.`,
+      });
+      setRecommendModalOpen(false);
+      setSelectedClient("");
+      setSelectedClientName("");
+      setSelectedProduct("");
+      setRecommendationNotes("");
+      setIsSubmitting(false);
+    }, 1000);
+  };
+
   const safeUsers = Array.isArray(users) ? users : [];
   const activeCount = safeUsers.filter((u) => u.status === "active").length;
   const inactiveCount = safeUsers.filter((u) => u.status !== "active").length;
@@ -254,9 +300,9 @@ export default function AgentHomePage() {
   return (
     <DashboardLayout type="agent">
       <div className="space-y-6">
-        {/* Back Navigation */}
+        {/* Back Navigation - Goes to Landing Page */}
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push("/")}
           className="inline-flex items-center gap-2 text-gray-500 hover:text-[#E9521C] font-medium text-sm mb-6 group transition-colors"
         >
           <div className="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-[#E9521C]/10 flex items-center justify-center transition-colors">
@@ -298,6 +344,99 @@ export default function AgentHomePage() {
             </p>
           </div>
         </motion.div>
+
+        {/* Stanbic Recommendation Widget */}
+        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-2 border-blue-200 dark:border-blue-800">
+          <CardContent className="pt-6">
+            <div className="flex items-start justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-white rounded-xl p-2 shadow-md">
+                  <Image src="/partners/stanbic.jpeg" alt="Stanbic Bank" width={60} height={30} className="object-contain w-full h-full" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">Recommend to Stanbic</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Help your clients access Stanbic financial products and earn referral rewards
+                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">Earn commission</Badge>
+                    <Badge variant="outline" className="text-xs">Quick approval</Badge>
+                  </div>
+                </div>
+              </div>
+              <Dialog open={recommendModalOpen} onOpenChange={setRecommendModalOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-[#E9521C] hover:bg-[#c44216]">Make Recommendation</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <Image src="/partners/stanbic.jpeg" alt="Stanbic" width={50} height={25} className="object-contain" />
+                      <DialogTitle className="text-xl">Recommend Client to Stanbic</DialogTitle>
+                    </div>
+                    <p className="text-sm text-gray-500">Submit a client recommendation for Stanbic financial products</p>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Select Client *</label>
+                      <Select value={selectedClient} onValueChange={(value) => {
+                        setSelectedClient(value);
+                        const client = safeUsers.find(u => u.id === value);
+                        setSelectedClientName(client?.fullName || "");
+                      }}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a client" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {safeUsers.map((client) => (
+                            <SelectItem key={client.id} value={client.id}>
+                              {client.fullName} - {client.phone}
+                            </SelectItem>
+                          ))}
+                          {safeUsers.length === 0 && (
+                            <SelectItem value="none" disabled>No clients available</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Product Interest *</label>
+                      <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a Stanbic product" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {stanbicProducts.map((product) => (
+                            <SelectItem key={product} value={product}>
+                              {product}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Notes / Reason</label>
+                      <Textarea
+                        placeholder="Why would this client benefit from Stanbic's services?"
+                        value={recommendationNotes}
+                        onChange={(e) => setRecommendationNotes(e.target.value)}
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button variant="outline" onClick={() => setRecommendModalOpen(false)} className="flex-1">
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSubmitRecommendation} disabled={isSubmitting} className="flex-1 bg-[#E9521C] hover:bg-[#c44216]">
+                      {isSubmitting ? "Submitting..." : "Submit Recommendation"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Stats Cards */}
         <Suspense fallback={<CardSkeleton />}>
@@ -445,21 +584,11 @@ export default function AgentHomePage() {
                   <table className="w-full">
                     <thead className="bg-gray-50 border-b border-gray-200">
                       <tr>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
-                          Customer
-                        </th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
-                          Phone
-                        </th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
-                          Status
-                        </th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
-                          Date
-                        </th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
-                          Actions
-                        </th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Customer</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Phone</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Status</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Date</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -467,7 +596,7 @@ export default function AgentHomePage() {
                         <tr>
                           <td colSpan={5} className="text-center py-8 text-gray-500">
                             No registrations yet. Start by registering a new user!
-                           </td>
+                          </td>
                         </tr>
                       ) : (
                         recentUsers.map((user, index) => (
@@ -515,9 +644,7 @@ export default function AgentHomePage() {
                                   <MessageSquare className="h-4 w-4" />
                                 </button>
                                 <button
-                                  onClick={() =>
-                                    router.push(`/dashboard/users?view=${user.id}`)
-                                  }
+                                  onClick={() => router.push(`/dashboard/users?view=${user.id}`)}
                                   className="p-1.5 rounded-lg bg-[#F3F4F6] text-gray-600 hover:bg-[#E9521C] hover:text-white transition-colors"
                                   title="View Details"
                                 >
@@ -590,9 +717,7 @@ export default function AgentHomePage() {
                     </div>
                     <span className="text-sm text-gray-600">Active Customers</span>
                   </div>
-                  <span className="font-bold text-black">
-                    {activeCount}
-                  </span>
+                  <span className="font-bold text-black">{activeCount}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-3">
@@ -601,9 +726,7 @@ export default function AgentHomePage() {
                     </div>
                     <span className="text-sm text-gray-600">Pending / Inactive</span>
                   </div>
-                  <span className="font-bold text-black">
-                    {inactiveCount}
-                  </span>
+                  <span className="font-bold text-black">{inactiveCount}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-3">
@@ -622,23 +745,20 @@ export default function AgentHomePage() {
         {/* Partners Section */}
         <div>
           <h2 className="text-lg font-black text-black mb-4 uppercase tracking-wide">Our Partners</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {[
               { name: "CreditYame", logo: "/partners/credityame.jpeg", category: "Credit Scoring" },
               { name: "Ipachi Capital", logo: "/partners/ipachi.jpeg", category: "SME Finance" },
               { name: "Seriti Insights", logo: "/partners/seriti.jpeg", category: "Data & Analytics" },
               { name: "Seipone.ai", logo: "/partners/seipone.jpeg", category: "AI Solutions" },
-            ].map(partner => (
+              { name: "Stanbic Bank", logo: "/partners/stanbic.jpeg", category: "Strategic Partner" },
+            ].map((partner) => (
               <div
                 key={partner.name}
                 className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col items-center gap-3 shadow-sm card-hover"
               >
                 <div className="h-14 w-full flex items-center justify-center">
-                  <img
-                    src={partner.logo}
-                    alt={partner.name}
-                    className="max-h-12 max-w-full object-contain"
-                  />
+                  <img src={partner.logo} alt={partner.name} className="max-h-12 max-w-full object-contain" />
                 </div>
                 <div className="text-center">
                   <p className="font-bold text-black text-sm">{partner.name}</p>

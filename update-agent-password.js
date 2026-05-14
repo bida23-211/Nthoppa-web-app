@@ -3,29 +3,32 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-async function updateAgentPassword() {
+async function updateAllAgentPasswords() {
   try {
-    const email = 'john.doe@example.com';
-    const newPassword = 'password123';
+    const agentsToUpdate = [
+      { loginEmail: 'agent@nthoppa.com', password: 'agent123' },
+      { loginEmail: 'sarah@nthoppa.com', password: 'password123' },
+      { loginEmail: 'mary@nthoppa.com', password: 'password123' }
+    ];
     
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    for (const { loginEmail, password } of agentsToUpdate) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      const agent = await prisma.agent.update({
+        where: { loginEmail: loginEmail },
+        data: { loginPassword: hashedPassword }
+      });
+      
+      console.log(`✅ Updated: ${agent.name} (${agent.loginEmail}) -> ${password}`);
+    }
     
-    const agent = await prisma.agent.update({
-      where: { email: email },
-      data: { loginPassword: hashedPassword }
-    });
-    
-    console.log('✅ Agent password updated successfully!');
-    console.log('Email:', agent.email);
-    console.log('Name:', agent.name);
-    console.log('New password:', newPassword);
-    console.log('Hashed password:', hashedPassword);
+    console.log('\n🎉 All agent passwords updated successfully!');
     
   } catch (error) {
-    console.error('❌ Error updating agent password:', error);
+    console.error('❌ Error updating agent passwords:', error);
   } finally {
     await prisma.$disconnect();
   }
 }
 
-updateAgentPassword();
+updateAllAgentPasswords();

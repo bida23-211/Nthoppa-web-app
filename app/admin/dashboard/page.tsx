@@ -21,6 +21,7 @@ import {
 } from "recharts";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+import Image from "next/image";
 
 const statsData = [
   { title: "Total Users", value: "12,480", change: "+18%", icon: Users, color: "bg-orange-500" },
@@ -80,9 +81,9 @@ export default function AdminDashboard() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* Back Navigation */}
+        {/* Back Navigation - Goes to Landing Page */}
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push("/")}
           className="inline-flex items-center gap-2 text-gray-500 hover:text-[#E9521C] font-medium text-sm mb-6 group transition-colors"
         >
           <div className="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-[#E9521C]/10 flex items-center justify-center transition-colors">
@@ -176,22 +177,29 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Partner Logos Section */}
+        {/* Partner Logos Section - WITH STANBIC ADDED */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-5">
             <h3 className="font-semibold text-gray-900 text-sm">Ecosystem Partners</h3>
             <span className="text-xs text-gray-400">Active Integrations</span>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {[
               { name: 'CreditYame', logo: '/partners/credityame.jpeg', role: 'Credit Scoring — Formal', status: 'Live' },
               { name: 'iPachi Capital', logo: '/partners/ipachi.jpeg', role: 'SMME Pipeline — Informal', status: 'Live' },
               { name: 'Seriti Insights', logo: '/partners/seriti.jpeg', role: 'Data & Analytics', status: 'Live' },
               { name: 'Seipone.ai', logo: '/partners/seipone.jpeg', role: 'AI Solutions', status: 'Beta' },
+              { name: 'Stanbic Bank', logo: '/partners/stanbic.jpeg', role: 'Strategic Banking Partner', status: 'Live' },
             ].map((partner, i) => (
               <div key={i} className="flex flex-col items-center gap-3 p-4 rounded-xl bg-gray-50 hover:bg-orange-50 border border-transparent hover:border-[#E9521C]/20 transition-all group">
-                <div className="w-14 h-14 rounded-xl overflow-hidden bg-white shadow-sm border border-gray-100 flex-shrink-0">
-                  <img src={partner.logo} alt={partner.name} className="w-full h-full object-contain p-1" />
+                <div className="w-14 h-14 rounded-xl overflow-hidden bg-white shadow-sm border border-gray-100 flex-shrink-0 relative">
+                  <Image 
+                    src={partner.logo} 
+                    alt={partner.name} 
+                    width={56} 
+                    height={56} 
+                    className="w-full h-full object-contain p-1"
+                  />
                 </div>
                 <div className="text-center">
                   <div className="font-semibold text-gray-900 text-xs">{partner.name}</div>

@@ -147,10 +147,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         </div>
       </motion.aside>
 
-      {/* Main Content */}
-      <div className="lg:pl-72">
+      {/* Main Content - REMOVED LEFT PADDING */}
+      <div className="lg:pl-0">
         {/* Header */}
-        <header className="fixed right-0 left-0 lg:left-72 top-0 z-30 bg-white/90 backdrop-blur-md border-b border-gray-200/80">
+        <header className="fixed right-0 left-0 top-0 z-30 bg-white/90 backdrop-blur-md border-b border-gray-200/80">
           <div className="flex h-16 items-center justify-between px-6">
             <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-gray-600 hover:text-[#E9521C]">
               <Menu className="h-6 w-6" />
@@ -168,7 +168,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 </div>
               </div>
 
-              {/* User Menu - Only Logout */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className="flex items-center gap-2 cursor-pointer">

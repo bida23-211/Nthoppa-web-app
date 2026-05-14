@@ -1,16 +1,22 @@
-import { signToken, verifyToken } from './jwt';
+import { signToken, verifyToken, TokenPayload } from './jwt';
 
 export interface RefreshTokenPayload {
   id: string;
   refreshVersion: number;
+  iat?: number;
+  exp?: number;
 }
 
 export function generateRefreshToken(userId: string, version: number): string {
   return signToken({ id: userId, refreshVersion: version }, '30d');
 }
 
-export function verifyRefreshToken(token: string): RefreshTokenPayload {
-  return verifyToken<RefreshTokenPayload>(token);
+export function verifyRefreshToken(token: string): RefreshTokenPayload | null {
+  const decoded = verifyToken<RefreshTokenPayload>(token);
+  if (!decoded) {
+    return null;
+  }
+  return decoded;
 }
 
 // Store refresh token versions in memory (in production, use Redis or database)
@@ -27,4 +33,10 @@ export function incrementRefreshTokenVersion(userId: string): void {
 
 export function revokeAllUserTokens(userId: string): void {
   incrementRefreshTokenVersion(userId);
+}
+
+// Helper to validate refresh token version
+export function isRefreshTokenValid(userId: string, tokenVersion: number): boolean {
+  const currentVersion = getRefreshTokenVersion(userId);
+  return tokenVersion >= currentVersion;
 }

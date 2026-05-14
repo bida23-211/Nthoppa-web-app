@@ -140,8 +140,9 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
         </div>
       </motion.aside>
 
-      <div className="lg:pl-72">
-        <header className="fixed right-0 left-0 lg:left-72 top-0 z-30 bg-white border-b border-gray-200">
+      {/* Main Content - REMOVED LEFT PADDING */}
+      <div className="lg:pl-0">
+        <header className="fixed right-0 left-0 top-0 z-30 bg-white border-b border-gray-200">
           <div className="flex h-16 items-center justify-between px-4">
             <button onClick={() => setSidebarOpen(true)} className="lg:hidden">
               <Menu className="h-6 w-6" />
