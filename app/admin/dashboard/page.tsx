@@ -353,7 +353,7 @@ export default function AdminDashboard() {
               <p className="text-white/40 text-xs">Insurance & financial products marketplace division</p>
             </div>
             <Link 
-              href="/dashboard/nthoppa-sure" 
+              href="/admin/nthoppa-sure" 
               className="text-xs text-[#E9521C] font-semibold border border-[#E9521C]/30 px-3 py-1.5 rounded-lg hover:bg-[#E9521C]/10 transition-colors inline-block"
             >
               View Dashboard →
