@@ -185,7 +185,7 @@ function HowItWorksSection() {
     { num: '01', icon: '📱', title: 'Sign Up in Minutes', desc: 'Create your Nthoppa account with just your name, phone number, and national ID. No bank account required to get started.' },
     { num: '02', icon: '🎓', title: 'Complete Financial Literacy', desc: 'Work through bite-sized modules that teach budgeting, saving, and credit. Earn coins and build your Grit score as you go.' },
     { num: '03', icon: '📊', title: 'Build Your Credit Profile', desc: 'Your savings patterns, income consistency, and behaviour automatically generate an alternative credit score — no formal history needed.' },
-    { num: '04', icon: '🏦', title: 'Unlock Banking Products', desc: 'Once ready, access Stanbic's Instant Money Wallet, savings accounts, and business banking — with Nthoppa as your bridge.' },
+    { num: '04', icon: '🏦', title: 'Unlock Banking Products', desc: "Once ready, access Stanbic's Instant Money Wallet, savings accounts, and business banking — with Nthoppa as your bridge." },
   ];
 
   return (
@@ -232,7 +232,7 @@ function HowItWorksSection() {
 function TestimonialsSection() {
   const testimonials = [
     { name: 'Thabo Molefe', role: 'Informal Trader → SME Owner', location: 'Gaborone', quote: 'I had no credit history and no bank account. After 6 months on Nthoppa, I qualified for a Stanbic business account and got working capital for my hardware shop.', score: '+89pts credit score', avatar: 'TM', color: 'from-orange-500 to-red-500' },
-    { name: 'Josephine Kgosinkwe', role: 'Market Vendor → Micro-Entrepreneur', location: 'Francistown', quote: 'The financial literacy modules taught me things no one ever explained before — budgeting, savings goals, insurance. My Grit score is now 78 and I'm in the Accelerate programme.', score: '78 Grit Score', avatar: 'JK', color: 'from-blue-500 to-purple-500' },
+    { name: 'Josephine Kgosinkwe', role: 'Market Vendor → Micro-Entrepreneur', location: 'Francistown', quote: "The financial literacy modules taught me things no one ever explained before — budgeting, savings goals, insurance. My Grit score is now 78 and I'm in the Accelerate programme.", score: '78 Grit Score', avatar: 'JK', color: 'from-blue-500 to-purple-500' },
     { name: 'Michael Modise', role: 'Agent, Nthoppa Field Team', location: 'Maun', quote: 'As an agent I've helped 340 clients register in 8 months. The pipeline dashboard shows me exactly who's ready for Stanbic referral — it takes the guesswork out completely.', score: '340 clients enrolled', avatar: 'MM', color: 'from-green-500 to-teal-500' },
   ];
 
