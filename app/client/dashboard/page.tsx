@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/button";
 import { 
   Wallet, TrendingUp, Shield, BookOpen, ArrowUpRight, 
   Copy, Check, Send, CreditCard, History, FileText,
-  ArrowUp, Home, ShoppingBag, Zap, PiggyBank, Eye, Coins, ChevronLeft
+  ArrowUp, Home, ShoppingBag, Zap, PiggyBank, Eye, Coins, ChevronLeft,
+  Rocket, Building2, Star, Flame
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -292,6 +293,93 @@ export default function ClientDashboard() {
                   <p className={`font-bold text-sm ${tx.amount > 0 ? 'text-green-600' : 'text-gray-800'}`}>
                     {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()} BWP
                   </p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Accelerate Incubator Banner */}
+      <div
+        className="relative bg-gradient-to-br from-[#0a0a0a] to-[#1a1a1a] rounded-3xl p-6 overflow-hidden cursor-pointer shadow-xl"
+        onClick={() => router.push("/client/accelerate")}
+      >
+        <div className="absolute top-0 right-0 w-48 h-48 bg-[#E9521C]/10 rounded-full blur-[60px]" />
+        <div className="relative z-10 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#E9521C]/20 flex items-center justify-center shrink-0">
+              <Rocket className="w-6 h-6 text-[#E9521C]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-semibold text-[#E9521C] uppercase tracking-widest">Accelerate Incubator</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#E9521C]/20 text-[#E9521C] font-bold">3/4 criteria met</span>
+              </div>
+              <p className="text-white font-black text-base">You're almost incubator-ready!</p>
+              <p className="text-white/50 text-xs mt-0.5">Complete your 90-day savings streak to qualify for Accelerate</p>
+            </div>
+          </div>
+          <ArrowUpRight className="w-5 h-5 text-white/40 shrink-0" />
+        </div>
+        {/* Progress bar */}
+        <div className="relative z-10 mt-4">
+          <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <div className="h-full bg-[#E9521C] rounded-full" style={{ width: "75%" }} />
+          </div>
+          <p className="text-white/30 text-[10px] mt-1">75% ready for Accelerate Incubator</p>
+        </div>
+      </div>
+
+      {/* Banking Pathway + Behaviour Score */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Banking Pathway Card */}
+        <Card
+          className="border border-[#0f4c8a]/20 rounded-2xl shadow-sm cursor-pointer hover:shadow-md transition-all bg-gradient-to-br from-[#0f4c8a]/5 to-white"
+          onClick={() => router.push("/client/banking")}
+        >
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-xl bg-[#0f4c8a]/10 flex items-center justify-center">
+                <Building2 className="w-5 h-5 text-[#0f4c8a]" />
+              </div>
+              <ArrowUpRight className="w-4 h-4 text-gray-300" />
+            </div>
+            <p className="text-sm font-black text-gray-900">Banking Pathway</p>
+            <p className="text-xs text-gray-500 mt-0.5 mb-3">2 of 4 Stanbic products unlocked</p>
+            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-full bg-[#0f4c8a] rounded-full" style={{ width: "50%" }} />
+            </div>
+            <p className="text-[10px] text-gray-400 mt-1">Transactional Account ready to open</p>
+          </CardContent>
+        </Card>
+
+        {/* Behaviour Score Card */}
+        <Card className="border border-gray-100 rounded-2xl shadow-sm">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-xl bg-[#E9521C]/10 flex items-center justify-center">
+                <Star className="w-5 h-5 text-[#E9521C]" />
+              </div>
+              <span className="text-xs font-bold text-[#E9521C]">Alternative Data</span>
+            </div>
+            <p className="text-sm font-black text-gray-900">Behaviour Score</p>
+            <p className="text-xs text-gray-500 mt-0.5 mb-3">Used for credit & loan eligibility</p>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { label: "Savings", value: 82 },
+                { label: "Discipline", value: 68 },
+                { label: "Income", value: 74 },
+                { label: "Activity", value: 66 },
+              ].map((m) => (
+                <div key={m.label}>
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="text-[10px] text-gray-500">{m.label}</span>
+                    <span className="text-[10px] font-bold text-gray-700">{m.value}%</span>
+                  </div>
+                  <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-[#E9521C] rounded-full" style={{ width: `${m.value}%` }} />
+                  </div>
                 </div>
               ))}
             </div>

@@ -17,6 +17,8 @@ import {
   Shield,
   Lock,
   Activity,
+  Rocket,
+  Building2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -37,6 +39,8 @@ const navItems = [
   { name: "Education", href: "/client/education", icon: BookOpen },
   { name: "Transactions", href: "/client/transactions", icon: History },
   { name: "NthoppaSure", href: "/client/marketplace", icon: Shield },
+  { name: "Banking Pathway", href: "/client/banking", icon: Building2 },
+  { name: "Accelerate", href: "/client/accelerate", icon: Rocket, badge: "New" },
 ];
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
@@ -129,7 +133,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 )}
               >
                 <item.icon className="h-4.5 w-4.5 flex-shrink-0" />
-                {item.name}
+                <span className="flex-1">{item.name}</span>
+                {(item as any).badge && (
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#E9521C] text-white">
+                    {(item as any).badge}
+                  </span>
+                )}
               </a>
             );
           })}
