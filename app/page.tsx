@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, useScroll } from "framer-motion";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, useScroll, useInView } from "framer-motion";
 import {
   Menu,
   X,
@@ -79,6 +79,208 @@ const socialLinks = [
     )
   },
 ];
+
+
+// ── Animated CountUp hook ─────────────────────────────────────────────────────
+function useCountUp(target: number, duration = 2000, start = false) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let startTime: number | null = null;
+    const step = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(eased * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [start, target, duration]);
+  return count;
+}
+
+// ── Stats Section with animated countup ──────────────────────────────────────
+function StatsSection() {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const stats = [
+    { target: 24891, label: 'Total Users', icon: '👥', suffix: '', desc: 'and growing daily' },
+    { target: 8342, label: 'Active Agents', icon: '🤝', suffix: '', desc: 'across Botswana' },
+    { target: 6120, label: 'Credit Profiles', icon: '📊', suffix: '', desc: 'built on the platform' },
+    { target: 712, label: 'Avg Credit Score', icon: '⭐', suffix: '', desc: 'average member score' },
+  ];
+  const counts = [
+    useCountUp(stats[0].target, 2000, isInView),
+    useCountUp(stats[1].target, 2000, isInView),
+    useCountUp(stats[2].target, 2000, isInView),
+    useCountUp(stats[3].target, 2000, isInView),
+  ];
+
+  // Live activity ticker
+  const activities = [
+    "🎉 Thabo M. just earned 50 coins",
+    "📈 Kgabo Trading reached SME Ready status",
+    "🏦 Josephine K. opened a Stanbic account",
+    "🛡️ Michael L. activated NthoppaSure",
+    "⭐ Botsalano Farm credit score jumped +34pts",
+    "🎓 Sarah P. completed Financial Literacy Level 3",
+    "💰 Lebo Fashion saved BWP 2,000 this month",
+  ];
+  const [tickerIdx, setTickerIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTickerIdx(i => (i + 1) % activities.length), 3500);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <section className="bg-white py-20 border-y border-gray-100">
+      <div className="max-w-7xl mx-auto px-6">
+        {/* Live ticker */}
+        <div className="flex items-center gap-3 bg-[#E9521C]/5 border border-[#E9521C]/20 rounded-xl px-4 py-2.5 mb-12 overflow-hidden">
+          <span className="flex-shrink-0 flex items-center gap-1.5 text-[#E9521C] font-body font-bold text-xs uppercase tracking-widest">
+            <span className="w-2 h-2 bg-[#E9521C] rounded-full animate-pulse" />
+            Live
+          </span>
+          <div className="overflow-hidden flex-1">
+            <motion.div
+              key={tickerIdx}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="font-body text-sm text-gray-600"
+            >
+              {activities[tickerIdx]}
+            </motion.div>
+          </div>
+        </div>
+
+        <div className="text-center mb-12">
+          <span className="font-body text-[#E9521C] font-semibold text-sm uppercase tracking-widest">Platform Dashboard</span>
+          <h2 className="font-display text-4xl font-black text-[#0a0a0a] mt-2">Nthoppa by the <span className="text-[#E9521C]">Numbers</span></h2>
+          <p className="font-body text-gray-400 text-base mt-3 max-w-md mx-auto">Real impact, real people. See what the Nthoppa community has built together.</p>
+        </div>
+        <div ref={ref} className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+          {stats.map((stat, i) => (
+            <motion.div key={i} initial={{opacity: 0, y: 20}} whileInView={{opacity: 1, y: 0}} viewport={{once: true}} transition={{delay: i * 0.1}}
+              className="flex flex-col items-center gap-2 p-6 rounded-2xl hover:bg-[#f8f9fa] transition-colors group"
+            >
+              <span className="text-4xl mb-1 group-hover:scale-110 transition-transform">{stat.icon}</span>
+              <div className="font-display text-5xl font-black text-[#0a0a0a]">
+                {isInView ? counts[i].toLocaleString() : '0'}{stat.suffix}
+              </div>
+              <div className="font-body font-semibold text-gray-700 text-sm">{stat.label}</div>
+              <div className="font-body text-gray-400 text-xs">{stat.desc}</div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── How It Works Section ──────────────────────────────────────────────────────
+function HowItWorksSection() {
+  const steps = [
+    { num: '01', icon: '📱', title: 'Sign Up in Minutes', desc: 'Create your Nthoppa account with just your name, phone number, and national ID. No bank account required to get started.' },
+    { num: '02', icon: '🎓', title: 'Complete Financial Literacy', desc: 'Work through bite-sized modules that teach budgeting, saving, and credit. Earn coins and build your Grit score as you go.' },
+    { num: '03', icon: '📊', title: 'Build Your Credit Profile', desc: 'Your savings patterns, income consistency, and behaviour automatically generate an alternative credit score — no formal history needed.' },
+    { num: '04', icon: '🏦', title: 'Unlock Banking Products', desc: 'Once ready, access Stanbic's Instant Money Wallet, savings accounts, and business banking — with Nthoppa as your bridge.' },
+  ];
+
+  return (
+    <section className="bg-[#0a0a0a] py-24 relative overflow-hidden">
+      <div className="absolute top-0 left-1/2 w-96 h-96 bg-[#E9521C]/10 rounded-full blur-[120px] -translate-x-1/2" />
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="text-center mb-16">
+          <span className="font-body text-[#E9521C] font-semibold text-sm uppercase tracking-widest">Simple Process</span>
+          <h2 className="font-display text-4xl lg:text-5xl font-black text-white mt-2">How It <span className="text-[#E9521C]">Works</span></h2>
+          <p className="font-body text-white/50 text-base mt-3 max-w-md mx-auto">From unbanked to business banking — four steps that change everything.</p>
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {steps.map((step, i) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.15, duration: 0.5 }}
+              className="relative bg-white/5 border border-white/10 hover:border-[#E9521C]/40 rounded-3xl p-6 transition-all group hover:bg-white/8"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <span className="text-4xl group-hover:scale-110 transition-transform">{step.icon}</span>
+                <span className="font-display text-5xl font-black text-white/10 group-hover:text-[#E9521C]/20 transition-colors">{step.num}</span>
+              </div>
+              <h3 className="font-display text-lg font-black text-white mb-2">{step.title}</h3>
+              <p className="font-body text-white/50 text-sm leading-relaxed">{step.desc}</p>
+              {i < steps.length - 1 && (
+                <div className="hidden lg:block absolute top-1/2 -right-3 w-6 h-0.5 bg-[#E9521C]/30" />
+              )}
+            </motion.div>
+          ))}
+        </div>
+        <div className="text-center mt-12">
+          <a href="/login" className="inline-flex items-center gap-3 bg-[#E9521C] text-white font-body font-bold px-8 py-4 rounded-2xl hover:bg-[#c44216] transition-all shadow-[0_8px_32px_rgba(233,82,28,0.4)] hover:shadow-[0_12px_40px_rgba(233,82,28,0.6)] hover:-translate-y-0.5 transform">
+            Start Your Journey →
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Testimonials Section ──────────────────────────────────────────────────────
+function TestimonialsSection() {
+  const testimonials = [
+    { name: 'Thabo Molefe', role: 'Informal Trader → SME Owner', location: 'Gaborone', quote: 'I had no credit history and no bank account. After 6 months on Nthoppa, I qualified for a Stanbic business account and got working capital for my hardware shop.', score: '+89pts credit score', avatar: 'TM', color: 'from-orange-500 to-red-500' },
+    { name: 'Josephine Kgosinkwe', role: 'Market Vendor → Micro-Entrepreneur', location: 'Francistown', quote: 'The financial literacy modules taught me things no one ever explained before — budgeting, savings goals, insurance. My Grit score is now 78 and I'm in the Accelerate programme.', score: '78 Grit Score', avatar: 'JK', color: 'from-blue-500 to-purple-500' },
+    { name: 'Michael Modise', role: 'Agent, Nthoppa Field Team', location: 'Maun', quote: 'As an agent I've helped 340 clients register in 8 months. The pipeline dashboard shows me exactly who's ready for Stanbic referral — it takes the guesswork out completely.', score: '340 clients enrolled', avatar: 'MM', color: 'from-green-500 to-teal-500' },
+  ];
+
+  return (
+    <section className="bg-white py-24">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-16">
+          <span className="font-body text-[#E9521C] font-semibold text-sm uppercase tracking-widest">Real Stories</span>
+          <h2 className="font-display text-4xl lg:text-5xl font-black text-[#0a0a0a] mt-2">People Behind the <span className="text-[#E9521C]">Numbers</span></h2>
+          <p className="font-body text-gray-400 text-base mt-3 max-w-md mx-auto">From spaza shops to formal business banking — Batswana building better financial futures.</p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          {testimonials.map((t, i) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.15 }}
+              className="bg-white border border-gray-100 rounded-3xl p-7 shadow-sm hover:shadow-lg transition-all group hover:-translate-y-1"
+            >
+              <div className="flex items-center gap-4 mb-5">
+                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${t.color} flex items-center justify-center text-white font-display font-black text-sm flex-shrink-0`}>
+                  {t.avatar}
+                </div>
+                <div>
+                  <p className="font-display font-black text-[#0a0a0a] text-sm">{t.name}</p>
+                  <p className="font-body text-gray-400 text-xs">{t.role}</p>
+                  <p className="font-body text-gray-300 text-xs">📍 {t.location}</p>
+                </div>
+              </div>
+              <div className="mb-4">
+                <svg className="w-8 h-8 text-[#E9521C]/20 mb-2" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                </svg>
+                <p className="font-body text-gray-600 text-sm leading-relaxed">{t.quote}</p>
+              </div>
+              <div className="pt-4 border-t border-gray-100">
+                <span className="inline-flex items-center gap-1.5 bg-[#E9521C]/10 text-[#E9521C] font-body font-bold text-xs px-3 py-1.5 rounded-full">
+                  ⭐ {t.score}
+                </span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -691,45 +893,9 @@ export default function LandingPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="bg-white py-20 border-y border-gray-100">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <span className="font-body text-[#E9521C] font-semibold text-sm uppercase tracking-widest">Platform Dashboard</span>
-            <h2 className="font-display text-4xl font-black text-[#0a0a0a] mt-2">Nthoppa by the <span className="text-[#E9521C]">Numbers</span></h2>
-            <p className="font-body text-gray-400 text-base mt-3 max-w-md mx-auto">Real impact, real people. See what the Nthoppa community has built together.</p>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-            {[
-              { value: '24,891', label: 'Total Users', icon: '👥', desc: 'and growing daily' },
-              { value: '8,342', label: 'Active Agents', icon: '🤝', desc: 'across Botswana' },
-              { value: '6,120', label: 'Credit Profiles', icon: '📊', desc: 'built on the platform' },
-              { value: '712', label: 'Avg Credit Score', icon: '⭐', desc: 'average member score' },
-            ].map((stat, i) => (
-              <motion.div key={i} initial={{opacity: 0, y: 20}} whileInView={{opacity: 1, y: 0}} viewport={{once: true}} transition={{delay: i * 0.1}}
-                className="flex flex-col items-center gap-2 p-6 rounded-2xl hover:bg-[#f8f9fa] transition-colors"
-              >
-                <span className="text-4xl mb-1">{stat.icon}</span>
-                <div className="font-display text-5xl font-black text-[#0a0a0a]">{stat.value}</div>
-                <div className="font-body font-semibold text-gray-700 text-sm">{stat.label}</div>
-                <div className="font-body text-gray-400 text-xs">{stat.desc}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Floating WhatsApp CTA */}
-      <a
-        href="https://wa.me/26771234567?text=Hi%20Nthoppa%2C%20I%27d%20like%20to%20learn%20more%20about%20your%20services."
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 bg-[#25D366] hover:bg-[#20B858] text-white font-body font-bold text-sm px-4 py-3.5 rounded-2xl shadow-[0_8px_32px_rgba(37,211,102,0.4)] hover:shadow-[0_12px_40px_rgba(37,211,102,0.6)] transition-all hover:-translate-y-0.5 transform group"
-      >
-        <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 flex-shrink-0">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
-        <span className="hidden sm:inline">Chat on WhatsApp</span>
-      </a>
+      <StatsSection />
+      <HowItWorksSection />
+      <TestimonialsSection />
 
       {/* Footer */}
       <footer className="bg-[#050505] border-t border-white/5 py-16">
