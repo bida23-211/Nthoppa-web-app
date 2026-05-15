@@ -78,21 +78,66 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Mobile overlay */}
       <AnimatePresence>
         {sidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
-            onClick={() => setSidebarOpen(false)}
-          />
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
+              onClick={() => setSidebarOpen(false)}
+            />
+            <motion.aside
+              initial={{ x: -256 }}
+              animate={{ x: 0 }}
+              exit={{ x: -256 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className={`fixed left-0 top-0 z-50 h-full w-64 bg-[#0a0a0a] text-white flex flex-col border-r border-[#E9521C]/20 lg:hidden`}
+            >
+              <div className="flex h-16 items-center justify-between px-4 border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl overflow-hidden bg-black flex-shrink-0 border border-[#E9521C]/20">
+                    <img src="/nthoppa-logo.png" alt="Nthoppa" className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <span className="text-lg font-black text-white tracking-tight">Nthoppa</span>
+                    <div className="text-[10px] text-[#E9521C] font-semibold uppercase tracking-wider">Admin Portal</div>
+                  </div>
+                </div>
+                <button onClick={() => setSidebarOpen(false)} className="p-1.5 text-gray-400 hover:text-white">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <nav className="flex-1 mt-4 px-2 space-y-0.5 overflow-y-auto">
+                {adminNavItems.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <a key={item.name} href={item.href}
+                      className={cn("flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                        isActive ? "bg-[#E9521C] text-white" : "text-gray-400 hover:bg-white/8 hover:text-white"
+                      )}
+                    >
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      <span className="flex-1 truncate">{item.name}</span>
+                    </a>
+                  );
+                })}
+              </nav>
+              <div className="p-3 border-t border-white/10">
+                <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:bg-red-500/10 hover:text-red-400 transition-all">
+                  <LogOut className="h-4 w-4 flex-shrink-0" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </motion.aside>
+          </>
         )}
       </AnimatePresence>
 
       <motion.aside
-        initial={{ x: -256 }}
-        animate={{ x: sidebarOpen ? 0 : -256 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className={`fixed left-0 top-0 z-50 h-full ${sidebarWidth} bg-[#0a0a0a] text-white lg:translate-x-0 transition-all duration-300 flex flex-col border-r border-[#E9521C]/20`}
+        initial={false}
+        animate={{ x: 0 }}
+        className={`fixed left-0 top-0 z-50 h-full ${sidebarWidth} bg-[#0a0a0a] text-white transition-all duration-300 flex flex-col border-r border-[#E9521C]/20 hidden lg:flex`}
       >
         <div className="flex h-16 items-center justify-between px-4 border-b border-white/10">
           <div className="flex items-center gap-3">
@@ -170,8 +215,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </motion.aside>
 
       {/* Main Content */}
-      <div className={`transition-all duration-300 ${collapsed ? "lg:pl-16" : "lg:pl-64"}`}>
-        <header className={`fixed right-0 top-0 z-30 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300 ${collapsed ? "left-16" : "left-0 lg:left-64"}`}>
+      <div className={`transition-all duration-300 ${collapsed ? "pl-16" : "pl-64"}`}>
+        <header className={`fixed right-0 top-0 z-30 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300 ${collapsed ? "left-16" : "left-64"}`}>
           <div className="flex h-16 items-center justify-between px-6">
             <div className="flex items-center gap-4">
               <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-gray-600 hover:text-[#E9521C]">
