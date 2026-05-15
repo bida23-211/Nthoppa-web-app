@@ -97,39 +97,110 @@ const incubatorBenefits = [
 
 function GaugeChart({ value, max, color }: { value: number; max: number; color: string }) {
   const pct = Math.min(value / max, 1);
-  const angle = pct * 180 - 90; // -90 to 90 degrees
-  const r = 50;
-  const cx = 60;
-  const cy = 60;
 
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const endX = cx + r * Math.cos(toRad(angle - 90));
-  const endY = cy + r * Math.sin(toRad(angle - 90));
+  // Semicircle arc: left point to right point, curving upward
+  const cx = 100, cy = 95, r = 72;
+  // Arc circumference of a semicircle
+  const arcLen = Math.PI * r; // ~226
+
+  // SVG path for the semicircle track (left → right, sweep clockwise = arc above centre)
+  const trackD = `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`;
+
+  // Fill length based on value percentage
+  const fillLen = pct * arcLen;
+
+  // Needle: starts pointing left (-180deg), rotates right by pct*180
+  const needleAngleDeg = -180 + pct * 180;
+  const needleAngleRad = (needleAngleDeg * Math.PI) / 180;
+  const needleLen = 54;
+  const nx = cx + needleLen * Math.cos(needleAngleRad);
+  const ny = cy + needleLen * Math.sin(needleAngleRad);
+
+  // Zone colour bands (decorative segments behind track)
+  const zones = [
+    { from: 0, to: 0.33, color: "rgba(239,68,68,0.25)" },
+    { from: 0.33, to: 0.66, color: "rgba(251,146,60,0.25)" },
+    { from: 0.66, to: 1, color: "rgba(34,197,94,0.20)" },
+  ];
+
+  const arcPoint = (angle: number, radius: number) => {
+    const rad = (angle * Math.PI) / 180;
+    return { x: cx + radius * Math.cos(rad), y: cy + radius * Math.sin(rad) };
+  };
 
   return (
-    <svg viewBox="0 0 120 70" className="w-full">
-      {/* Background arc */}
+    <svg viewBox="0 0 200 110" className="w-full" style={{ overflow: "visible" }}>
+      {/* Zone bands */}
+      {zones.map((z, i) => {
+        const startAngle = -180 + z.from * 180;
+        const endAngle = -180 + z.to * 180;
+        const s = arcPoint(startAngle, r);
+        const e = arcPoint(endAngle, r);
+        const large = (z.to - z.from) > 0.5 ? 1 : 0;
+        return (
+          <path
+            key={i}
+            d={`M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 1 ${e.x} ${e.y}`}
+            fill="none"
+            stroke={z.color}
+            strokeWidth="14"
+            strokeLinecap="butt"
+          />
+        );
+      })}
+
+      {/* Background track */}
       <path
-        d={`M 10 60 A 50 50 0 0 1 110 60`}
-        fill="none" stroke="#e5e7eb" strokeWidth="10" strokeLinecap="round"
+        d={trackD}
+        fill="none"
+        stroke="rgba(255,255,255,0.08)"
+        strokeWidth="10"
+        strokeLinecap="round"
       />
-      {/* Value arc */}
+
+      {/* Value fill — dasharray trick for clean animation */}
       <path
-        d={`M 10 60 A 50 50 0 ${pct > 0.5 ? 1 : 0} 1 ${endX} ${endY}`}
-        fill="none" stroke={color} strokeWidth="10" strokeLinecap="round"
-        style={{ transition: "all 1.2s ease-in-out" }}
+        d={trackD}
+        fill="none"
+        stroke={color}
+        strokeWidth="10"
+        strokeLinecap="round"
+        strokeDasharray={`${fillLen} ${arcLen + 1}`}
+        style={{ transition: "stroke-dasharray 1.4s cubic-bezier(0.34,1.56,0.64,1)" }}
       />
+
+      {/* Tick marks at 0, 25, 50, 75, 100 */}
+      {[0, 25, 50, 75, 100].map((tick) => {
+        const angle = -180 + (tick / 100) * 180;
+        const inner = arcPoint(angle, r - 10);
+        const outer = arcPoint(angle, r + 4);
+        return (
+          <line key={tick}
+            x1={inner.x} y1={inner.y} x2={outer.x} y2={outer.y}
+            stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round"
+          />
+        );
+      })}
+
+      {/* Needle shadow */}
+      <line x1={cx} y1={cy} x2={nx + 1} y2={ny + 1}
+        stroke="rgba(0,0,0,0.4)" strokeWidth="2" strokeLinecap="round" />
+
       {/* Needle */}
-      <line
-        x1={cx} y1={cy}
-        x2={cx + 38 * Math.cos(toRad(angle - 90))}
-        y2={cy + 38 * Math.sin(toRad(angle - 90))}
-        stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round"
+      <line x1={cx} y1={cy} x2={nx} y2={ny}
+        stroke="white" strokeWidth="2.5" strokeLinecap="round"
+        style={{ transition: "x2 1.4s cubic-bezier(0.34,1.56,0.64,1), y2 1.4s cubic-bezier(0.34,1.56,0.64,1)" }}
       />
-      <circle cx={cx} cy={cy} r="4" fill="#1a1a1a" />
-      {/* Labels */}
-      <text x="10" y="72" fontSize="8" fill="#9ca3af">0</text>
-      <text x="108" y="72" fontSize="8" fill="#9ca3af" textAnchor="end">{max}</text>
+
+      {/* Hub rings */}
+      <circle cx={cx} cy={cy} r="9" fill="rgba(255,255,255,0.15)" />
+      <circle cx={cx} cy={cy} r="6" fill="white" />
+      <circle cx={cx} cy={cy} r="3.5" fill={color} />
+
+      {/* End labels */}
+      <text x={cx - r - 2} y={cy + 15} fontSize="8.5" fill="rgba(255,255,255,0.35)" textAnchor="middle">0</text>
+      <text x={cx + r + 2} y={cy + 15} fontSize="8.5" fill="rgba(255,255,255,0.35)" textAnchor="middle">{max}</text>
+      <text x={cx} y={cy - r - 8} fontSize="8.5" fill="rgba(255,255,255,0.35)" textAnchor="middle">{Math.round(max / 2)}</text>
     </svg>
   );
 }
