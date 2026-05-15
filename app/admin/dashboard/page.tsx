@@ -339,6 +339,12 @@ export default function AdminDashboard() {
                 </div>
               ))}
             </div>
+            <Link
+              href="/admin/sme-pipeline"
+              className="mt-4 w-full inline-flex items-center justify-center gap-2 text-xs text-[#E9521C] font-semibold border border-[#E9521C]/30 px-3 py-2 rounded-lg hover:bg-[#E9521C]/10 transition-colors"
+            >
+              View SME Pipeline Dashboard <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
 
