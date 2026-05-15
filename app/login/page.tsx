@@ -263,6 +263,12 @@ export default function LoginPage() {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
+                {/* Back to home */}
+                <a href="/" className="inline-flex items-center gap-1.5 text-gray-400 hover:text-[#E9521C] text-xs font-medium mb-6 transition-colors group">
+                  <ChevronLeft className="h-3.5 w-3.5 group-hover:-translate-x-0.5 transition-transform" />
+                  Back to home
+                </a>
+
                 <div className="text-center mb-8">
                   <h2 className="text-3xl font-black text-gray-900">Sign in to your account</h2>
                   <p className="text-gray-500 mt-2">Access your Nthoppa dashboard</p>
@@ -290,33 +296,34 @@ export default function LoginPage() {
                   })}
                 </div>
 
-                {/* Demo Credentials Toggle */}
-                <button
-                  onClick={() => setShowDemoCredentials(!showDemoCredentials)}
-                  className="flex items-center gap-2 text-sm text-[#E9521C] hover:text-[#c44216] mb-6 transition-colors"
-                >
-                  {showDemoCredentials ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  <span>Show demo credentials</span>
-                </button>
-
-                {showDemoCredentials && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="bg-gray-50 rounded-xl p-4 mb-6 border border-gray-200"
-                  >
-                    <p className="text-sm font-semibold text-gray-700 mb-2">Demo Credentials for {roleConfig[selectedRole].label}:</p>
-                    <p className="text-xs text-gray-600">Email: <span className="font-mono">{roleConfig[selectedRole].demoEmail}</span></p>
-                    <p className="text-xs text-gray-600">Password: <span className="font-mono">{roleConfig[selectedRole].demoPassword}</span></p>
-                    <button
-                      onClick={fillDemoCredentials}
-                      className="mt-3 text-xs text-[#E9521C] font-medium hover:underline"
-                    >
-                      Fill credentials →
-                    </button>
-                  </motion.div>
-                )}
+                {/* Quick Demo — one click per role */}
+                <div className="bg-gradient-to-br from-[#E9521C]/5 to-orange-50 border border-[#E9521C]/20 rounded-2xl p-4 mb-6">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">⚡ Quick Demo — click to enter instantly</p>
+                  <div className="flex flex-wrap gap-2">
+                    {(Object.entries(roleConfig) as [Role, typeof roleConfig.agent][]).map(([key, config]) => {
+                      const Icon = config.icon;
+                      return (
+                        <button
+                          key={key}
+                          onClick={() => {
+                            setSelectedRole(key);
+                            setEmail(config.demoEmail);
+                            setPassword(config.demoPassword);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:border-[#E9521C] hover:text-[#E9521C] rounded-lg text-xs font-semibold text-gray-600 transition-all shadow-sm hover:shadow-md"
+                        >
+                          <Icon className="h-3 w-3" />
+                          {config.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {email && (
+                    <p className="text-[10px] text-gray-400 mt-2 font-mono">
+                      Ready: {email}
+                    </p>
+                  )}
+                </div>
 
                 <form onSubmit={handleLogin} className="space-y-5">
                   <div className="space-y-2">

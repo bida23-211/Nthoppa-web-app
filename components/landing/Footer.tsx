@@ -53,8 +53,16 @@ export function Footer() {
           </div>
           <div>
             <div className="font-body font-semibold text-white/60 text-xs uppercase tracking-widest mb-4">Quick Links</div>
-            {['About Us', 'Our Offerings', 'How It Works', 'FAQs'].map(link => (
-              <div key={link} className="font-body text-white/40 hover:text-[#E9521C] text-sm mb-3 cursor-pointer transition-colors">{link}</div>
+            {[
+              { label: 'About Us', href: '#partners' },
+              { label: 'Our Offerings', href: '#offerings' },
+              { label: 'How It Works', href: '#banking' },
+              { label: 'SME Pipeline', href: '#sme-pipeline' },
+              { label: 'Incubator', href: '#incubator' },
+            ].map(link => (
+              <a key={link.label} href={link.href}
+                onClick={(e) => { e.preventDefault(); const el = document.querySelector(link.href); if(el) el.scrollIntoView({ behavior: 'smooth' }); }}
+                className="block font-body text-white/40 hover:text-[#E9521C] text-sm mb-3 cursor-pointer transition-colors">{link.label}</a>
             ))}
           </div>
           <div>

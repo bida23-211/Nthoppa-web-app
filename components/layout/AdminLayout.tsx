@@ -7,6 +7,7 @@ import {
   Menu, X, LayoutDashboard, UserPlus, Users, BarChart3,
   FileText, LogOut, Bell, ChevronDown,
   Shield, TrendingUp, Activity, ChevronRight, Sparkles, Lock,
+  Building2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -21,6 +22,8 @@ const adminNavItems = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Register Agent", href: "/admin/register-agent", icon: UserPlus },
   { name: "Manage Agents", href: "/admin/agents", icon: Users },
+  { name: "NthoppaSure", href: "/admin/nthoppa-sure", icon: Shield },
+  { name: "SME Pipeline", href: "/admin/sme-pipeline", icon: Building2 },
   { name: "Investor View", href: "/admin/investor", icon: TrendingUp },
   { name: "Reports", href: "/admin/reports", icon: FileText },
 ];
@@ -166,9 +169,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </div>
       </motion.aside>
 
-      {/* Main Content - REMOVED LEFT PADDING */}
-      <div className="lg:pl-0 transition-all duration-300">
-        <header className="fixed right-0 left-0 top-0 z-30 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300">
+      {/* Main Content */}
+      <div className={`transition-all duration-300 ${collapsed ? "lg:pl-16" : "lg:pl-64"}`}>
+        <header className={`fixed right-0 top-0 z-30 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300 ${collapsed ? "left-16" : "left-0 lg:left-64"}`}>
           <div className="flex h-16 items-center justify-between px-6">
             <div className="flex items-center gap-4">
               <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-gray-600 hover:text-[#E9521C]">
